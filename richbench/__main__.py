@@ -75,6 +75,7 @@ def main():
     box = MARKDOWN if args.markdown else HEAVY_HEAD
     table = Table(title=f"Benchmarks, repeat={args.repeat}, number={args.times}", box=box)
 
+    table.add_column("module", justify="left", style="green", no_wrap=True)
     table.add_column("Benchmark", justify="right", style="cyan", no_wrap=True)
     table.add_column("Min", width=7)
     table.add_column("Max", width=7)
@@ -96,6 +97,7 @@ def main():
                     without_result = benchmark_function(func, bench_dir, args.repeat, args.times, args.profile)
 
                     table.add_row(
+                                i.__name__.removeprefix('bench_'),
                                 desc,
                                 "{:.3f}".format(min(without_result)),
                                 "{:.3f}".format(max(without_result)),
