@@ -9,8 +9,8 @@ from types import FunctionType
 import pyinstrument
 try:
     from statistics import fmean
-except ImportError: # Python 3.6-3.7 doesn't have fmean
-    from statistics import mean as fmean # YOLO
+except ImportError:  # Python 3.6-3.7 doesn't have fmean
+    from statistics import mean as fmean  # YOLO
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
@@ -24,7 +24,7 @@ def format_delta(a: float, b: float, d: float, perc: bool = False) -> Text:
     if a < b:
         if d < 10:
             col = "medium_spring_green"
-        elif 10 <= d < 20:  
+        elif 10 <= d < 20:
             col = "spring_green1"
         elif 20 <= d < 40:
             col = "spring_green2"
@@ -57,25 +57,33 @@ def benchmark_function(func: FunctionType, bench_dir: pathlib.Path, repeat: int,
         profiler.stop()
         with open(profiles_out / f"{func.__name__}.html", "w", encoding='utf-8') as html:
             html.write(profiler.output_html())
-    
+
     return result
+
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--profile', action='store_true', help='Profile the benchmarks and store in .profiles/')
-    parser.add_argument('--percentage', action='store_true', help="Show percentage of improvement instead of multiplier")
-    parser.add_argument('--markdown', action='store_true', help="Prints a markdown friendly table")
-    parser.add_argument('--benchmark', nargs='?', default=None, help="Run specific benchmark")
-    parser.add_argument('--repeat', type=int, default=DEFAULT_REPEAT, help="Repeat benchmark this many times")
-    parser.add_argument('--times', type=int, default=DEFAULT_TIMES, help="Run benchmark this many times")
+    parser.add_argument('--profile', action='store_true',
+                        help='Profile the benchmarks and store in .profiles/')
+    parser.add_argument('--percentage', action='store_true',
+                        help="Show percentage of improvement instead of multiplier")
+    parser.add_argument('--markdown', action='store_true',
+                        help="Prints a markdown friendly table")
+    parser.add_argument('--benchmark', nargs='?',
+                        default=None, help="Run specific benchmark")
+    parser.add_argument('--repeat', type=int, default=DEFAULT_REPEAT,
+                        help="Repeat benchmark this many times")
+    parser.add_argument('--times', type=int, default=DEFAULT_TIMES,
+                        help="Run benchmark this many times")
     parser.add_argument('target', nargs="+", type=str)
 
     args = parser.parse_args()
 
     box = MARKDOWN if args.markdown else HEAVY_HEAD
-    table = Table(title=f"Benchmarks, repeat={args.repeat}, number={args.times}", box=box)
+    table = Table(
+        title=f"Benchmarks, repeat={args.repeat}, number={args.times}", box=box)
 
-    table.add_column("module", justify="left", style="green", no_wrap=True)
+    table.add_column("Module", justify="left", style="green", no_wrap=True)
     table.add_column("Benchmark", justify="right", style="cyan", no_wrap=True)
     table.add_column("Min", width=7)
     table.add_column("Max", width=7)
@@ -93,19 +101,21 @@ def main():
                 for benchmark in i.__benchmarks__:
                     n += 1
                     func, desc = benchmark
-                    
-                    without_result = benchmark_function(func, bench_dir, args.repeat, args.times, args.profile)
+
+                    without_result = benchmark_function(
+                        func, bench_dir, args.repeat, args.times, args.profile)
 
                     table.add_row(
-                                i.__name__.removeprefix('bench_'),
-                                desc,
-                                "{:.3f}".format(min(without_result)),
-                                "{:.3f}".format(max(without_result)),
-                                "{:.3f}".format(fmean(without_result)),
-                                )
+                        i.__name__.removeprefix('bench_'),
+                        desc,
+                        "{:.3f}".format(min(without_result)),
+                        "{:.3f}".format(max(without_result)),
+                        "{:.3f}".format(fmean(without_result)),
+                    )
 
     console = Console(width=150)
     console.print(table)
+
 
 if __name__ == "__main__":
     main()
